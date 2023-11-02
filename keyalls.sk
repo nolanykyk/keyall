@@ -1,0 +1,319 @@
+# MADE BY NOLAN (discord.gg/mcdevs)
+
+# READ ME!!
+
+# Dependencies
+
+# Skript
+# Skript Placeholders (optional)
+# LuckPerms (optional)
+# PlaceHolderAPI (optional)
+
+# Commands
+
+# /start-keyall <normal/supporter> Starts the keyall for either normal player or supporter players
+# /stop-keyall <normal/supporter> Stops the keyall for either normal player or supporter players
+# /reset-keyall <normal/supporter> Resets the timer for keyall for either normal player or supporter players
+# /keyall <normal/supporter> Forces the keyall to be handed out for either normal player or supporter players
+# /keyall-format <s/m/h> Sets the time format for the keyall
+
+# Placeholders
+
+# %keyall_left% Displays how much time is left until the keyall is initialiated
+# %keyall_reward% Displays the keyall reward
+
+options:
+    
+    # Keyall Options
+    
+	keyall_reward_color: &a 
+	keyall_placeholder_color: &a
+	keyall_every_loop_number: 1 # The number by which it loops, backed by keyall_every_loop_format
+	keyall_every_loop_format: seconds # How often the number above loops, every second, every minute, etc
+    
+    # Keyall Options (normal)
+
+	keyall_item: Crate Key
+	keyall_reward: Rare
+	keyall_reward_amount: 1
+	keyall_time_left: 10 # The number by which it loops, backed by keyall_every_loop_format
+	keyall_reward_command: crate key giveall Rare 1
+	
+    # Keyall Options (supporter)
+    
+	keyall_item_supporter: Crate Key
+	keyall_reward_supporter: Epic
+	keyall_reward_amount_supporter: 2
+	keyall_reward_command_supporter: crate key giveall Epic 2
+	keyall_every_loop_number_supporter: 60 # The number by which it loops, backed by keyall_every_loop_format_supporter
+	keyall_time_left_supporter: 60 # How much time is per keyall, backed by keyall_every_loop_format_supporter
+	keyall_every_loop_format_supporter: seconds
+    
+	# Settings
+    
+	actionbar_force_keyall: true # <true/false> This determines if an action bar will be sent for /keyall 
+	message_force_keyall: true # <true/false> This determines if a chat message will be sent for /keyall 
+	actionbar_keyall: true # <true/false> This determines if an action bar will be sent for keyalls
+	message_keyall: true # <true/false> This determines if a chat message will be sent for keyalls
+    
+    # Permissions
+    
+	keyall_format_use: keyall.format
+	keyall_supporter: keyall.supporter
+	keyall_reset: keyall.reset
+	keyall_start: keyall.start
+	keyall_stop: keyall.stop
+	keyall_give_out: keyall.giveout
+    
+	# Errors
+    
+	error_no_permissions: &cYou do not have the required permissions to perform this command
+    
+    # Messages (normal)
+    
+	reset_keyall: &aYou've just reset the keyall to %{keyall::time}%%{keyall::time::format}% left
+	started_keyall: &aYou've started a keyall with %{keyall::time}%%{keyall::time::format}% left
+	stopped_keyall: &cYou've stopped the keyall with %{keyall::time}%%{keyall::time::format}% left
+	stopped_keyall_all: &cYou've stopped the keyall with %{keyall::time}%%{keyall::time::format}% left for normal & %{keyall::time::supporter}%%{keyall::time::format::supporter}% left for supporters
+	keyall_given_out: &aYou've recieved 1 Rare Crate Key
+	started_keyall_all: &aYou've started a keyall with %{keyall::time}%%{keyall::time::format}% left for normal & %{keyall::time::supporter}%%{keyall::time::format::supporter}% left for supporters
+
+	# Messages (supporter)
+    
+	reset_keyall_supporter: &aYou've just reset the keyall for supporters to %{keyall::time::supporter}%%{keyall::time::format::supporter}% left
+	started_keyall_supporter: &aYou've started a keyall for supporters with %{keyall::time::supporter}%%{keyall::time::format::supporter}% left
+	stopped_keyall_supporter: &cYou've stopped the keyall for supporters with %{keyall::time::supporter}%%{keyall::time::format::supporter}% left
+	keyall_given_out_supporter: &aYou've recieved 2 Epic Crate Keys
+	keyall_is_not_running: &cThe keyall is not currently running
+	set_keyall_time_format: &aYou've successfully set the keyall time format to %{keyall::time::format}%
+	set_keyall_time_format_supporter: &aYou've successfully set the keyall time format to %{keyall::time::format::supporter}%
+
+	# Usages
+    
+	wrong_usage_format: &cIncorrect usage for this commmand&7, please use /keyall-format <supporter/normal> <s/m/h>
+	wrong_usage_start: &cIncorrect usage for this commmand&7, please use /start-keyall <normal/supporter>
+	wrong_usage_reset: &cIncorrect usage for this commmand&7, please use /reset-keyall <normal/supporter>
+	wrong_usage_stop: &cIncorrect usage for this commmand&7, please use /stop-keyall <normal/supporter>
+	wrong_usage_force: &cIncorrect usage for this commmand&7, please use /keyall <normal/supporter>
+
+on placeholderapi placeholder request for the prefix "keyall":
+	if the identifier is "left":
+		if player has permission "{@keyall_supporter}":
+			set the result to "{@keyall_placeholder_color}%{keyall::time::supporter}%%{keyall::time::format}%"
+		if player does not have permission "{@keyall_supporter}":
+			set the result to "{@keyall_placeholder_color}%{keyall::time}%%{keyall::time::format}%"
+	if the identifier is "reward":
+		if player has permission "{@keyall_supporter}":
+			set the result to "{@keyall_placeholder_color}{@keyall_reward_supporter}"
+		if player does not have permission "{@keyall_supporter}":
+			set the result to "{@keyall_placeholder_color}{@keyall_reward}"
+
+command /keyall-format <string> <string>:
+	permission: {@keyall_format_use}
+	permission message: {@error_no_permissions}
+	usage: {@wrong_usage_format}
+	trigger:
+		if arg-1 is "normal":
+			if arg-2 is "s":
+				set {keyall::time::format} to "s"
+				send action bar "{@set_keyall_time_format}" to executor
+			if arg-2 is "m":
+				set {keyall::time::format} to "m"
+				send action bar "{@set_keyall_time_format}" to executor
+			if arg-2 is "h":
+				set {keyall::time::format} to "h"
+				send action bar "{@set_keyall_time_format}" to executor
+			if arg-2 is not "m" or "s" or "h":
+				send action bar "{@wrong_usage_format}" to executor
+		if arg-1 is "supporter":
+			if arg-2 is "s":
+				set {keyall::time::format::supporter} to "s"
+				send action bar "{@set_keyall_time_format_supporter}" to executor
+			if arg-2 is "m":
+				set {keyall::time::format::supporter} to "m"
+				send action bar "{@set_keyall_time_format_supporter}" to executor
+			if arg-2 is "h":
+				set {keyall::time::format::supporter} to "h"
+				send action bar "{@set_keyall_time_format_supporter}" to executor
+			if arg-2 is not "m" or "s" or "h":
+				send action bar "{@wrong_usage_format}" to executor
+                
+command /start-keyall <string>:
+	usage: {@wrong_usage_start}
+	permission: {@keyall_start}
+	permission message: {@error_no_permissions}
+	trigger:
+		if arg-1 is "normal":
+			send action bar "{@started_keyall}" to executor
+			set {keyall::time} to {@keyall_time_left}
+			set {keyall::running} to true
+		if arg-1 is "supporter":
+			send action bar "{@started_keyall_supporter}" to executor
+			set {keyall::time::supporter} to {@keyall_time_left_supporter}
+			set {keyall::running::supporter} to true
+		if arg-1 is "all":
+			send action bar "{@started_keyall_all}" to executor
+			set {keyall::time} to {@keyall_time_left}
+			set {keyall::running} to true
+			set {keyall::time::supporter} to {@keyall_time_left_supporter}
+			set {keyall::running::supporter} to true
+		if arg-1 is not "all" or "supporter" or "normal":
+			send action bar "{@wrong_usage_start}" to executor
+
+command /stop-keyall <string>:
+	usage: {@wrong_usage_stop}
+	permission: {@keyall_stop}
+	permission message: {@error_no_permissions}
+	trigger:
+		if {keyall::running} is false:
+			send action bar "{@keyall_is_not_running}" to executor
+		if {keyall::running::supporter} is false:
+			send action bar "{@keyall_is_not_running}" to executor
+		if {keyall::running} is true:
+			if arg-1 is "normal":
+				send action bar "{@stopped_keyall}" to executor
+				set {keyall::running} to false
+		if {keyall::running::supporter} is true:
+			if arg-1 is "supporter":
+				send action bar "{@stopped_keyall_supporter}" to executor
+				set {keyall::running::supporter} to false
+		if {keyall::running} and {keyall::running::supporter} is true:
+			if arg-1 is "all":
+				set {keyall::running::supporter} to false
+				set {keyall::running} to false
+				send action bar "{@stopped_keyall_all}" to executor
+		if arg-1 is not "all" or "supporter" or "normal":
+			send action bar "{@wrong_usage_stop}" to executor
+
+command /reset-keyall <string>:
+	usage: {@wrong_usage_reset}
+	permission: {@keyall_reset}
+	permission message: {@error_no_permissions}
+	trigger:
+		if arg-1 is "normal":
+			set {keyall::time} to {@keyall_time_left}
+			send action bar "{@reset_keyall}" to executor
+			set {keyall::running} to false
+		if arg-1 is "supporter":
+			set {keyall::time::supporter} to {@keyall_time_left_supporter}
+			send action bar "{@reset_keyall_supporter}" to executor
+			set {keyall::running::supporter} to false
+		if arg-1 is "all":
+			set {keyall::time::supporter} to {@keyall_time_left_supporter}
+			send action bar "{@reset_keyall_supporter}" to executor
+			set {keyall::running::supporter} to false
+			set {keyall::time} to {@keyall_time_left}
+			send action bar "{@reset_keyall}" to executor
+			set {keyall::running} to false
+		if arg-1 is not "all" or "supporter" or "normal":
+			send action bar "{@wrong_usage_reset}" to executor
+            
+command /keyall <string>:
+	usage: {@wrong_usage_force}
+	permission: {@keyall_give_out}
+	permission message: {@error_no_permissions}
+	trigger:
+		loop all players:
+			set {keyall::givenout} to false
+			if {keyall::givenout} is false:
+				if arg-1 is "normal":
+					if loop-player does not have permission "{@keyall_supporter}":
+						if {@actionbar_force_keyall} is true:
+							if {@message_force_keyall} is false:
+								send action bar "{@keyall_given_out}" to loop-player
+								execute console command "{@keyall_reward_command}"
+								set {keyall::givenout} to true
+						if {@actionbar_force_keyall} is true:
+							if {@actionbar_force_keyall} is false:
+								send "{@keyall_given_out}" to loop-player
+								execute console command "{@keyall_reward_command}"
+								set {keyall::givenout} to true
+						if {@actionbar_force_keyall} is false:
+							if {@message_force_keyall} is false:
+								execute console command "{@keyall_reward_command}"
+								set {keyall::givenout} to true
+						if {@message_force_keyall} is true:
+							if {@actionbar_force_keyall} is true:
+								send action bar "{@keyall_given_out}" to loop-player
+								send "{@keyall_given_out}" to loop-player
+								execute console command "{@keyall_reward_command}"
+								set {keyall::givenout} to true
+				if arg-1 is "supporter":
+					if loop-player has permission "{@keyall_supporter}":
+						if {@actionbar_force_keyall} is true:
+							if {@message_force_keyall} is false:
+								send action bar "{@keyall_given_out_supporter}" to loop-player
+								execute console command "{@keyall_reward_command_supporter}"
+								set {keyall::givenout} to true
+						if {@actionbar_force_keyall} is true:
+							if {@actionbar_force_keyall} is false:
+								send "{@keyall_given_out_supporter}" to loop-player
+								execute console command "{@keyall_reward_command_supporter}"
+								set {keyall::givenout} to true
+						if {@actionbar_force_keyall} is false:
+							if {@message_force_keyall} is false:
+								execute console command "{@keyall_reward_command_supporter}"
+								set {keyall::givenout} to true
+						if {@message_force_keyall} is true:
+							if {@actionbar_force_keyall} is true:
+								send action bar "{@keyall_given_out_supporter}" to loop-player
+								send "{@keyall_given_out_supporter}" to loop-player
+								execute console command "{@keyall_reward_command_supporter}"
+								set {keyall::givenout} to true
+			else if {keyall::givenout} is true:
+				stop
+
+every {@keyall_every_loop_number} {@keyall_every_loop_format}:
+	loop all players:
+		if {keyall::running} is true:
+			if loop-player does not have permission "{@keyall_supporter}":
+				remove 1 from {keyall::time}
+				if {keyall::time} is less than 1:
+					set {keyall::time} to {@keyall_time_left}
+					if {@actionbar_keyall} is true:
+						if {@message_keyall} is false:
+							send action bar "{@keyall_given_out}" to loop-player
+							execute console command "{@keyall_reward_command}"
+					if {@actionbar_keyall} is true:
+						if {@actionbar_keyall} is false:
+							send "{@keyall_given_out}" to loop-player
+							execute console command "{@keyall_reward_command}"
+					if {@actionbar_keyall} is false:
+						if {@message_keyall} is false:
+							execute console command "{@keyall_reward_command}"
+					if {@message_keyall} is true:
+						if {@actionbar_keyall} is true:
+							send action bar "{@keyall_given_out}" to loop-player
+							send "{@keyall_given_out}" to loop-player
+							execute console command "{@keyall_reward_command}"
+		else if {keyall::running} is false:
+			stop
+
+every {@keyall_every_loop_number_supporter} {@keyall_every_loop_format_supporter}:
+	loop all players:
+		if {keyall::running::supporter} is true:
+			if loop-player has permission "{@keyall_supporter}":
+				remove 1 from {keyall::time::supporter}
+				if {keyall::time::supporter} is less than 1:
+					set {keyall::time::supporter} to {@keyall_time_left_supporter}
+					if {@actionbar_keyall} is true:
+						if {@message_keyall} is false:
+							send action bar "{@keyall_given_out_supporter}" to loop-player
+							execute console command "{@keyall_reward_command_supporter}"
+					if {@actionbar_keyall} is true:
+						if {@actionbar_keyall} is false:
+							send "{@keyall_given_out_supporter}" to loop-player
+							execute console command "{@keyall_reward_command_supporter}"
+					if {@actionbar_keyall} is false:
+						if {@message_keyall} is false:
+							execute console command "{@keyall_reward_command_supporter}"
+					if {@message_keyall} is true:
+						if {@actionbar_keyall} is true:
+							send action bar "{@keyall_given_out_supporter}" to loop-player
+							send "{@keyall_given_out_supporter}" to loop-player
+							execute console command "{@keyall_reward_command_supporter}"
+		else if {keyall::running::supporter} is false:
+			stop
+            
+	
+	
